@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/vgera/OneDrive/Desktop/cp/chatApp/frontend/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/vgera/OneDrive/Desktop/cp/chatApp/frontend/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.282" />
+        <entry key="..\:/Users/vgera/OneDrive/Desktop/cp/chatApp/frontend/app/src/main/res/layout/activity_main.xml" value="0.2512690355329949" />
+        <entry key="..\:/Users/vgera/OneDrive/Desktop/cp/chatApp/frontend/app/src/main/res/layout/enter_mobile_fragment.xml" value="0.22" />
+        <entry key="..\:/Users/vgera/OneDrive/Desktop/cp/chatApp/frontend/app/src/main/res/layout/verify_otp_fragment.xml" value="0.18697916666666667" />
       </map>
     </option>
   </component>
@@ -12,5 +15,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.33" />
+      </ProjectState>
+    </option>
   </component>
 </project>
