@@ -1,9 +1,7 @@
 const redis = require('redis')
 
-const redisClient = redis.createClient({
-    port: 6379,
-    host: "127.0.0.1"
-})
+const redisClient = redis.createClient()
+
 
 redisClient.on('connect', () => {
     console.log("Client connected to redis......")
@@ -19,7 +17,14 @@ redisClient.on('error', (err) => {
 
 redisClient.on('end', () => {
     console.log('Client disconnected from redis')
-})
+});
 
+process.on('SIGINT', () => {
+    redisClient.quit();
+});
+
+(async function () {
+    await redisClient.connect();
+})();
 
 module.exports = redisClient
