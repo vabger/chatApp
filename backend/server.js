@@ -6,6 +6,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 
 const redisClient = require('./config/initRedis');
 const connectDB = require('./config/DB')
@@ -21,23 +22,25 @@ connectDB();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
+app.use(cookieParser(process.env.COOKIE_SECRET))
 
 
 app.post("/sendOTP", (req, res) => {
     const phone = req.body.phone;
     if (phone == null || phone == undefined) throw new APIError(400, "Missing Fields!")
     const otp = Math.floor(100000 + Math.random() * 900000);
-    const ttl = 2 * 60 * 1000
+    const ttl = 2 * 60 * 1000 //2 mins
     const expires = Date.now() + ttl;
     const hash = crypto.createHmac('sha256', process.env.OTP_HASH_SECRET).update(`${phone}.${otp}.${expires}`).digest('hex');
     const fullHash = `${hash}.${expires}`;
 
-    SMSclient.messages.create({
-        body: "Your One Time Password(OTP) for Chat App is " + otp,
-        from: "+17792092313",
-        to: phone
-    }).then((messageInstance) => console.log(messageInstance)).catch((err) => console.error(err))
+    // SMSclient.messages.create({
+    //     body: "Your One Time Password(OTP) for Chat App is " + otp,
+    //     from: "+17792092313",
+    //     to: phone
+    // }).then((messageInstance) => console.log(messageInstance)).catch((err) => console.error(err))
 
+    console.log(otp)
     res.send({ phone, hash: fullHash })
 })
 
@@ -46,7 +49,7 @@ app.post("/verifyOTP", catchAsync(async (req, res) => {
     const hash = req.body.hash
     const otp = req.body.otp
 
-    if (phone == null || hash == null || otp == null) throw new APIError(400, "Missing Fields")
+    if (phone === undefined || hash === undefined || otp === undefined) throw new APIError(400, "Missing Fields")
     if (typeof hash != 'string') throw new APIError(400, "Hash should be a string")
 
     const [hashValue, expires] = hash.split('.');
@@ -61,28 +64,37 @@ app.post("/verifyOTP", catchAsync(async (req, res) => {
         throw new APIError(401, "Verification failed! Incorrect OTP");
     }
 
-    const accessToken = generateNewAccessToken({ phone })
+    const { accessToken, atExpiresIn } = generateNewAccessToken({ phone })
 
-    const refreshToken = await generateNewRefreshToken({ phone })
+    const { refreshToken, rtExpiresIn } = await generateNewRefreshToken({ phone })
+
+    res.cookie('accessToken', accessToken);
+    res.cookie('refreshToken', refreshToken);
+    res.cookie('rtExpiresIn', rtExpiresIn);
+    res.cookie('atExpiresIn', atExpiresIn);
 
     res.send({ message: "Verification Successful!", accessToken, refreshToken })
 }));
 
 app.post("/refresh-token", catchAsync(async (req, res, next) => {
-    const refreshToken = req.body.refreshToken
+    const { refreshToken } = req.signedCookies;
     if (refreshToken == undefined) throw new APIError(400, "Refresh token required!")
 
     const user = await verifyRefreshToken(refreshToken);
 
-    const newAccessToken = generateNewAccessToken({ phone: user.phone })
-    const newRefreshToken = await generateNewRefreshToken({ phone: user.phone })
+    const [newAccessToken, atExpiresIn] = generateNewAccessToken({ phone: user.phone })
+    const [newRefreshToken, rtExpiresIn] = await generateNewRefreshToken({ phone: user.phone })
 
+    res.cookie('accessToken', newAccessToken);
+    res.cookie('refreshToken', newRefreshToken);
+    res.cookie('rtExpiresIn', rtExpiresIn);
+    res.cookie('atExpiresIn', atExpiresIn);
     res.send({ newAccessToken, newRefreshToken })
 
 }));
 
 app.delete("/logout", catchAsync(async (req, res) => {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.signedCookies;
     if (!refreshToken) throw new APIError(400, "Refresh token required!")
 
     const user = await verifyRefreshToken(refreshToken)
@@ -97,22 +109,26 @@ app.delete("/logout", catchAsync(async (req, res) => {
     res.send({ message: "Log Out successful!" })
 }))
 
+
 function generateNewAccessToken(user) {
-    return jwt.sign(user, process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+    const atExpiresIn = 60 * 60
+    const accessToken = jwt.sign(user, process.env.JWT_ACCESS_TOKEN_SECRET, { expiresIn: atExpiresIn })
+    return { accessToken, atExpiresIn };
 }
 
 async function generateNewRefreshToken(user) {
     const refreshToken = jwt.sign(user, process.env.JWT_REFRESH_TOKEN_SECRET, { expiresIn: '1y' });
-
+    const EX = 365 * 24 * 60 * 60;
     try {
         await redisClient.set(user.phone, refreshToken, {
-            EX: 365 * 24 * 60 * 60
+            EX
         });
     } catch (e) {
         throw new APIError(500, "Internal server error!");
     }
 
-    return refreshToken;
+    const expiresIn = Date.now() + EX * 1000;
+    return { refreshToken, rtExpiresIn: expiresIn };
 }
 
 async function verifyRefreshToken(refreshToken) {
@@ -138,12 +154,13 @@ async function verifyRefreshToken(refreshToken) {
 
     return user;
 }
+app.get('/auth', authenticateUser)
 
 function authenticateUser(req, res, next) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
+    const token = req.signedCookies.accessToken;
+    console.log(req.signedCookies);
 
-    if (token == undefined) throw new APIError(403, "User authentication failed!")
+    if (token == undefined) throw new APIError(403, "Access token required")
     jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) {
             if (err.message == "TokenExpiredError") {

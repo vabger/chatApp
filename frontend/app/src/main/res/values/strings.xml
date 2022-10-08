@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Chat App</string>
+    <string name="resend_otp">Resend OTP</string>
 </resources>

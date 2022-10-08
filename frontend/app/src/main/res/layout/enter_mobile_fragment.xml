@@ -3,82 +3,84 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="229dp"
-        android:layout_height="280dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/mail_box_img" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="229dp"
-        android:layout_height="42dp"
-        android:autoSizeTextType="uniform"
-        android:gravity="center"
-        android:padding="3dp"
-        android:text="OTP VERIFICATION"
-        android:textColor="@color/black"
-        android:textSize="0sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+    android:layout_height="wrap_content"
+    tools:context=".LoginActivity">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="370dp"
         android:layout_height="43dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
         android:text="We will send a One Time Password on your mobile number"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="380dp"
         android:layout_height="50dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2">
+        app:layout_constraintTop_toBottomOf="@+id/countrySpinner">
 
-        <Spinner
-            android:id="@+id/countrySpinner"
+        <TextView
+            android:id="@+id/isdTextView"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="+91"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/phoneEditText"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="3"
+            android:background="@color/LightGray"
             android:ems="10"
+            android:hint="1234-567-890"
             android:inputType="phone"
-            android:maxLength="10" />
+            android:maxLength="10"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            tools:ignore="TextContrastCheck"
+            android:importantForAutofill="no" />
+
     </LinearLayout>
 
     <Button
-        android:id="@+id/button"
-        android:layout_width="167dp"
-        android:layout_height="60dp"
+        android:id="@+id/generateOtpButton"
+        android:layout_width="wrap_content"
+        android:layout_height="61dp"
         android:layout_marginTop="30dp"
-        android:text="VERIFY OTP"
+        android:text="Generate OTP"
+        android:textColor="@color/white"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        tools:ignore="TextContrastCheck" />
+
+    <Spinner
+        android:id="@+id/countrySpinner"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="1dp"
+        android:background="@color/LightGray"
+        android:contentDescription="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 </androidx.constraintlayout.widget.ConstraintLayout>
