@@ -6,7 +6,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken')
-const cookieParser = require('cookie-parser')
 
 const redisClient = require('./config/initRedis');
 const connectDB = require('./config/DB')
@@ -22,7 +21,6 @@ connectDB();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
-app.use(cookieParser(process.env.COOKIE_SECRET))
 
 
 app.post("/sendOTP", (req, res) => {
@@ -68,11 +66,6 @@ app.post("/verifyOTP", catchAsync(async (req, res) => {
 
     const { refreshToken, rtExpiresIn } = await generateNewRefreshToken({ phone })
 
-    res.cookie('accessToken', accessToken);
-    res.cookie('refreshToken', refreshToken);
-    res.cookie('rtExpiresIn', rtExpiresIn);
-    res.cookie('atExpiresIn', atExpiresIn);
-
     res.send({ message: "Verification Successful!", accessToken, refreshToken })
 }));
 
@@ -84,11 +77,6 @@ app.post("/refresh-token", catchAsync(async (req, res, next) => {
 
     const [newAccessToken, atExpiresIn] = generateNewAccessToken({ phone: user.phone })
     const [newRefreshToken, rtExpiresIn] = await generateNewRefreshToken({ phone: user.phone })
-
-    res.cookie('accessToken', newAccessToken);
-    res.cookie('refreshToken', newRefreshToken);
-    res.cookie('rtExpiresIn', rtExpiresIn);
-    res.cookie('atExpiresIn', atExpiresIn);
     res.send({ newAccessToken, newRefreshToken })
 
 }));
