@@ -5,12 +5,14 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface AuthApi {
-    @POST("sendOTP")
-    Call<OtpHash> getOtp(@Body MobileNumber mobileNumber);
+    @POST("auth/sendOTP")
+    Call<OtpHash> getOtp(@Body Phone phone);
 
-    @POST("verifyOTP")
+    @POST("auth/verifyOTP")
     Call<Token> verifyOtp(@Body OtpVerificationBody otpVerificationBody);
 
+    @POST("auth/refresh-token")
+    Call<Token> refreshToken(@Body Token token);
 
 
 }

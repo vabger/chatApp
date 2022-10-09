@@ -1,9 +1,9 @@
 package com.example.chatapp.API.Auth;
 
-public class MobileNumber {
+public class Phone {
     String phone;
 
-    public MobileNumber(String phone) {
+    public Phone(String phone) {
         this.phone = phone;
     }
 }

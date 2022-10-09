@@ -3,8 +3,11 @@ package com.example.chatapp.API.Auth;
 public class Token {
     String accessToken;
     String refreshToken;
-    Long atExpiresIn;
-    Long rtExpiresIn;
+
+    public Token(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
 
     public String getAccessToken() {
         return accessToken;
@@ -14,21 +17,4 @@ public class Token {
         return refreshToken;
     }
 
-    public Long getAtExpiresIn() {
-        return atExpiresIn;
-    }
-
-    public Long getRtExpiresIn() {
-        return rtExpiresIn;
-    }
-
-    @Override
-    public String toString() {
-        return "Token{" +
-                "accessToken='" + accessToken + '\'' +
-                ", refreshToken='" + refreshToken + '\'' +
-                ", atExpiresIn=" + atExpiresIn +
-                ", rtExpiresIn=" + rtExpiresIn +
-                '}';
-    }
 }

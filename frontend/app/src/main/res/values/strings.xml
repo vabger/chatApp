@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Chat App</string>
     <string name="resend_otp">Resend OTP</string>
+    <string name="we_will_send_a_one_time_password_on_your_mobile_number">We will send a One Time Password on your mobile number</string>
+    <string name="_91">+91</string>
+    <string name="_1234_567_890">1234-567-890</string>
+    <string name="generate_otp">Generate OTP</string>
+    <string name="otp_verification">OTP verfication</string>
 </resources>

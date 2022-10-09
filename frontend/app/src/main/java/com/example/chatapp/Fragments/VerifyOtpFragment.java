@@ -28,7 +28,7 @@ public class VerifyOtpFragment extends Fragment {
     EditText[] editTexts;
 
     public interface VerifyOtpClickListener{
-        void verifyOtpClicked(View view);
+        void verifyOtpClicked(View view,String otp);
     }
 
     public interface ResendOtpClickListener{
@@ -70,18 +70,16 @@ public class VerifyOtpFragment extends Fragment {
     }
 
     public void verifyOTP(View view){
-        verifyOtpClickListener.verifyOtpClicked(view);
-    }
-
-    public String getOtp(){
         StringBuilder otp = new StringBuilder();
         for (EditText editText : editTexts) {
             if (editText.length() == 0) {
-                return null;
+                otp = null;
+                break;
             }
             otp.append(editText.getText().toString());
         }
-        return otp.toString();
+
+        verifyOtpClickListener.verifyOtpClicked(view,otp==null?null:otp.toString());
     }
 
 
