@@ -7,6 +7,8 @@ const APIError = require('../utils/APIError');
 const SMSclient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const redisClient = require('../config/initRedis');
 const { inProduction } = require('../config/globalVars');
+const User = require('../models/userModel');
+const joi = require('joi')
 
 function generateNewAccessToken(user) {
     const expiresIn = '1d'
@@ -18,7 +20,7 @@ async function generateNewRefreshToken(user) {
     const refreshToken = jwt.sign(user, process.env.JWT_REFRESH_TOKEN_SECRET, { expiresIn: '1y' });
     const EX = 365 * 24 * 60 * 60;
     try {
-        await redisClient.set(user.phone, refreshToken, {
+        await redisClient.set(user.id, refreshToken, {
             EX
         });
     } catch (e) {
@@ -38,7 +40,7 @@ async function verifyRefreshToken(refreshToken) {
     }
 
     try {
-        token = await redisClient.get(user.phone)
+        token = await redisClient.get(user.id)
     }
     catch (err) {
         console.log(err)
@@ -79,12 +81,19 @@ module.exports.sendOTP = catchAsync(async (req, res) => {
 })
 
 module.exports.verifyOTP = catchAsync(async (req, res) => {
-    const phone = req.body.phone
-    const hash = req.body.hash
-    const otp = req.body.otp
+    const { phone, hash, otp, username } = req.body
 
-    if (phone === undefined || hash === undefined || otp === undefined) throw new APIError(400, "Missing Fields")
-    if (typeof hash != 'string') throw new APIError(400, "Hash should be a string")
+    const schema = joi.object({
+        phone: joi.string().required(),
+        hash: joi.string().required(),
+        otp: joi.string().length(6).required()
+    })
+
+    if (!username) {
+        username = phone
+    }
+
+    await schema.validateAsync({ phone, hash, otp })
 
     const [hashValue, expires] = hash.split('.');
 
@@ -98,11 +107,18 @@ module.exports.verifyOTP = catchAsync(async (req, res) => {
         throw new APIError(401, "Verification failed! Incorrect OTP");
     }
 
-    const accessToken = generateNewAccessToken({ phone })
+    const user = await User.findOneAndUpdate({ phone }, { username },
+        {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true
+        });
 
-    const refreshToken = await generateNewRefreshToken({ phone })
+    const accessToken = generateNewAccessToken({ id: user._id.toString() })
 
-    res.send({ message: "Verification Successful!", accessToken, refreshToken })
+    const refreshToken = await generateNewRefreshToken({ id: user._id.toString() })
+
+    res.send({ message: "Verification Successful!", accessToken, refreshToken, user })
 })
 
 module.exports.refreshToken = catchAsync(async (req, res, next) => {
@@ -111,8 +127,8 @@ module.exports.refreshToken = catchAsync(async (req, res, next) => {
 
     const user = await verifyRefreshToken(refreshToken);
 
-    const accessToken = generateNewAccessToken({ phone: user.phone })
-    const newRefreshToken = await generateNewRefreshToken({ phone: user.phone });
+    const accessToken = generateNewAccessToken({ id: user.id })
+    const newRefreshToken = await generateNewRefreshToken({ id: user.id });
 
     res.send({ accessToken, refreshToken: newRefreshToken })
 
@@ -125,7 +141,7 @@ module.exports.logOut = catchAsync(async (req, res) => {
     const user = await verifyRefreshToken(refreshToken)
 
     try {
-        await redisClient.DEL(user.phone)
+        await redisClient.DEL(user.id)
     }
     catch (err) {
         throw new APIError(500, "Internal Server Error")

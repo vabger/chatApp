@@ -10,7 +10,9 @@ const connectDB = require('./config/DB')
 const ErrorHandler = require("./utils/ErrorHandler");
 
 const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/userRoutes")
+const userRoutes = require("./routes/userRoutes");
+const chatRoutes = require('./routes/chatRoutes')
+const authenticate = require('./middlewares/authenticate');
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.use(bodyParser.json())
 
 app.use("/auth", authRoutes)
 app.use("/user", userRoutes)
+app.use("/chat", authenticate, chatRoutes)
 
 
 app.use(ErrorHandler)
