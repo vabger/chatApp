@@ -21,24 +21,21 @@ module.exports.searchUser = catchAsync(async (req, res, next) => {
 
 });
 
+module.exports.getCurrentUser = catchAsync(async (req, res, next) => {
+    console.log(req.user.id);
+
+    const user = await User.findById(req.user.id)
+
+    if (!user) throw new APIError(404, "User not found!")
+
+    res.send({ ...user._doc });
+})
+
+
 module.exports.updateUsername = catchAsync(async (req, res, next) => {
-    const { username } = req.body;
-
-    const schema = Joi.object({
-        username: Joi.string().required().min(5).max(30)
-    })
-
-    schema.validateAsync({ username })
-
-    const user = await User.findByIdAndUpdate(req.user.id, {
-        username
-    }, {
-        new: true
-    })
-
-    res.send({ user })
 
 })
+
 
 module.exports.updateAvatar = catchAsync(async (req, res, next) => {
     const { file, user } = req;

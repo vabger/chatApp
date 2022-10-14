@@ -1,5 +1,8 @@
 package com.example.chatapp.API.Auth;
 
+import com.example.chatapp.API.User.User;
+import com.google.gson.annotations.SerializedName;
+
 public class Token {
     String accessToken;
     String refreshToken;

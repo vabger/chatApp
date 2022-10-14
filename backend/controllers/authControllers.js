@@ -81,7 +81,8 @@ module.exports.sendOTP = catchAsync(async (req, res) => {
 })
 
 module.exports.verifyOTP = catchAsync(async (req, res) => {
-    const { phone, hash, otp, username } = req.body
+    const { phone, hash, otp } = req.body
+    let { username } = req.body;
 
     const schema = joi.object({
         phone: joi.string().required(),

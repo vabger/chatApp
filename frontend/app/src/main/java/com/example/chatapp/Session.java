@@ -48,7 +48,7 @@ public class Session {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(RefreshTokenWorker.class,1, TimeUnit.HOURS)
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(RefreshTokenWorker.class,15, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .build();
         workManager.enqueueUniquePeriodicWork("refresh-token",ExistingPeriodicWorkPolicy.REPLACE,periodicWorkRequest);

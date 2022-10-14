@@ -11,7 +11,9 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
+import okhttp3.MediaType;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -26,16 +28,4 @@ public class ToastError {
         Toast.makeText(context,message,Toast.LENGTH_LONG).show();
     }
 
-    public void showMessage(ResponseBody responseBody){
-        Gson gson = new Gson();
-        Type type = new TypeToken<ErrorResponse>() {}.getType();
-        try {
-            Log.i("res",responseBody.string());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ErrorResponse errorResponse = gson.fromJson(responseBody.charStream(),type);
-
-        Toast.makeText(context,errorResponse.getMessage(),Toast.LENGTH_LONG).show();
-    }
 }

@@ -18,8 +18,11 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class RefreshTokenWorker extends Worker {
+
+    SharedPreferences sharedPreferences;
     public RefreshTokenWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        sharedPreferences = getApplicationContext().getSharedPreferences("token",Context.MODE_PRIVATE);
     }
 
     @NonNull
@@ -41,7 +44,6 @@ public class RefreshTokenWorker extends Worker {
         }
         if(response.isSuccessful()&&response.body()!=null){
             Token token = response.body();
-            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("token",Context.MODE_PRIVATE);
             sharedPreferences
                     .edit()
                     .putString("accessToken",token.getAccessToken())
@@ -49,6 +51,7 @@ public class RefreshTokenWorker extends Worker {
                     .apply();
             return Result.success();
         }
+        sharedPreferences.edit().clear().apply();
         return Result.retry();
 
     }

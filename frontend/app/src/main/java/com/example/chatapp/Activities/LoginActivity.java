@@ -22,6 +22,7 @@ import com.example.chatapp.Fragments.EnterMobileFragment;
 import com.example.chatapp.Fragments.VerifyOtpFragment;
 import com.example.chatapp.R;
 import com.example.chatapp.Session;
+import com.example.chatapp.utils.FailedRequestHandler;
 import com.example.chatapp.utils.ToastError;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -74,8 +75,7 @@ public class LoginActivity extends AppCompatActivity implements EnterMobileFragm
             @Override
             public void onResponse(@NonNull Call<OtpHash> call, @NonNull Response<OtpHash> response) {
                 if (!response.isSuccessful() && response.errorBody() != null) {
-                    Log.i("error",response.errorBody().toString());
-                    toastError.showMessage(response.errorBody());
+                    new FailedRequestHandler(getApplicationContext(), response.code(), response.errorBody()).handle();
                     return;
                 }
                 otpHash = response.body(); //Storing the otp hash for future verification
@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements EnterMobileFragm
             @Override
             public void onResponse(@NonNull Call<Token> call, @NonNull Response<Token> response) {
                 if (!response.isSuccessful() && response.errorBody() != null) {
-                    toastError.showMessage(response.errorBody());
+                    new FailedRequestHandler(getApplicationContext(),response.code(),response.errorBody());
                     return;
                 }
                 assert response.body() != null;

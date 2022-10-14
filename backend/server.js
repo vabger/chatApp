@@ -24,7 +24,7 @@ app.use(bodyParser.json())
 
 
 app.use("/auth", authRoutes)
-app.use("/user", userRoutes)
+app.use("/user", authenticate, userRoutes)
 app.use("/chat", authenticate, chatRoutes)
 
 

@@ -6,4 +6,6 @@
     <string name="_1234_567_890">1234-567-890</string>
     <string name="generate_otp">Generate OTP</string>
     <string name="otp_verification">OTP verfication</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
