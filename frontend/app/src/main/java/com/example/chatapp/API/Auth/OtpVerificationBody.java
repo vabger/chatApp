@@ -7,11 +7,13 @@ public class OtpVerificationBody {
     @SerializedName("phone")
     String mobileNumber;
     String otp;
+    String publicKey;
 
-    public OtpVerificationBody(String hash, String mobileNumber, String otp) {
+    public OtpVerificationBody(String hash, String mobileNumber, String otp, String publicKey) {
         this.hash = hash;
         this.mobileNumber = mobileNumber;
         this.otp = otp;
+        this.publicKey = publicKey;
     }
 
     @Override

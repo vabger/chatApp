@@ -6,17 +6,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.chatapp.API.API;
 import com.example.chatapp.API.User.User;
 import com.example.chatapp.API.User.UserApi;
 import com.example.chatapp.R;
+import com.example.chatapp.Session;
 import com.example.chatapp.utils.FailedRequestHandler;
 import com.example.chatapp.utils.ToastError;
 import com.squareup.picasso.Picasso;
@@ -31,7 +34,25 @@ public class ProfileFragment extends Fragment {
     ToastError toastError;
 
     private void updateProfileCLicked(View view){
+        EditText username = requireActivity().findViewById(R.id.usernameEditText);
+        Call<User> call = API.getUserApi().updateUsername(username.getText().toString());
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if(response.isSuccessful()){
+                    Toast.makeText(getContext(), "Username updated!", Toast.LENGTH_SHORT).show();
+                    Session.getInstance().setCurrentUser(response.body());
+                }
+                else{
+                    new FailedRequestHandler(getContext(),response.code(),response.errorBody());
+                }
+            }
 
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(getContext(), "Something went wrong!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

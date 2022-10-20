@@ -51,7 +51,6 @@ public class RefreshTokenWorker extends Worker {
                     .apply();
             return Result.success();
         }
-        sharedPreferences.edit().clear().apply();
         return Result.retry();
 
     }

@@ -73,14 +73,8 @@ public class EnterMobileFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 int intCode = phoneNumberUtil.getCountryCodeForRegion(regionCodes.get(i));
                 phoneNumber.setCountryCode(intCode);
-
                 String isdCode = "+" + intCode;
                 isdTextView.setText(isdCode);
-
-                String exampleNumber = Long.toString(phoneNumberUtil.getExampleNumberForType(regionCodes.get(i), PhoneNumberUtil.PhoneNumberType.MOBILE).getNationalNumber());
-                phoneEditText.setHint(exampleNumber);
-                phoneEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(exampleNumber.length())});
-
             }
 
             @Override

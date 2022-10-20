@@ -3,6 +3,7 @@ package com.example.chatapp;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -10,14 +11,29 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.example.chatapp.API.API;
 import com.example.chatapp.API.Auth.Token;
+import com.example.chatapp.API.User.User;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import retrofit2.Call;
+
 public class Session {
+    User currentUser;
     Token token;
     SharedPreferences preferences;
-    static Session session;
+    static Session session = new Session();
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User user){
+        currentUser = user;
+    }
+
 
     private Session(){
         preferences = MyApplication.getContext().getSharedPreferences("token",MODE_PRIVATE);
@@ -29,9 +45,6 @@ public class Session {
     }
 
     public static Session getInstance(){
-        if(session==null){
-            session = new Session();
-        }
         return session;
     }
 

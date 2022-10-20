@@ -81,20 +81,21 @@ module.exports.sendOTP = catchAsync(async (req, res) => {
 })
 
 module.exports.verifyOTP = catchAsync(async (req, res) => {
-    const { phone, hash, otp } = req.body
+    const { phone, hash, otp, publicKey } = req.body
     let { username } = req.body;
 
     const schema = joi.object({
         phone: joi.string().required(),
         hash: joi.string().required(),
-        otp: joi.string().length(6).required()
+        otp: joi.string().length(6).required(),
+        publicKey: joi.string().required()
     })
 
     if (!username) {
         username = phone
     }
 
-    await schema.validateAsync({ phone, hash, otp })
+    await schema.validateAsync({ phone, hash, otp, publicKey })
 
     const [hashValue, expires] = hash.split('.');
 
@@ -108,7 +109,7 @@ module.exports.verifyOTP = catchAsync(async (req, res) => {
         throw new APIError(401, "Verification failed! Incorrect OTP");
     }
 
-    const user = await User.findOneAndUpdate({ phone }, { username },
+    const user = await User.findOneAndUpdate({ phone }, { username, publicKey },
         {
             upsert: true,
             new: true,

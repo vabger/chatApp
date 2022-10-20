@@ -3,7 +3,8 @@ const { accessChat, fetchChats, renameGroup, createGroup, removeFromGroup, addTo
 
 const router = express.Router();
 
-router.route('/').post(accessChat).get(fetchChats);
+router.route('/').get(fetchChats);
+router.get("/access", accessChat);
 
 router.post('/group', createGroup)
 router.put('/group/rename', renameGroup)

@@ -2,12 +2,19 @@ package com.example.chatapp.API.User;
 
 import com.google.gson.annotations.SerializedName;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     @SerializedName("_id")
     String id;
     String avatar;
     String username;
     String phone;
+    String publicKey;
+
+    public String getPublicKey() {
+        return publicKey;
+    }
 
     public String getId() {
         return id;

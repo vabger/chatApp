@@ -13,12 +13,15 @@ const chatModel = mongoose.Schema({
         ref: "User"
     }],
     latestMessage: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Message"
+        type: String
     },
     groupAdmin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
+    },
+    chatImage: {
+        type: String,
+        default: "https://pic.onlinewebfonts.com/svg/img_258694.png"
     }
 }, {
     timestamps: true

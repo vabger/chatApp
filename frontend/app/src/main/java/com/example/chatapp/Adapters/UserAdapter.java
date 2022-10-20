@@ -22,11 +22,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     List<User> exists;
     List<String> phone;
     List<String> name;
+    OnUserClickListener listener;
 
-    public UserAdapter(List<User> exists, List<String> phone, List<String> name){
+    public static interface OnUserClickListener{
+        public void onUserClicked(int position,View view);
+    }
+
+    public UserAdapter(List<User> exists, List<String> phone, List<String> name,OnUserClickListener listener){
         this.exists = exists;
         this.phone = phone;
         this.name = name;
+        this.listener = listener;
     }
 
     @NonNull
@@ -38,15 +44,21 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position){
         if(position>=exists.size()){
-            position = position-exists.size();
-            holder.heading.setText(name.get(position));
-            holder.sub.setText(phone.get(position));
+            int newPos = position-exists.size();
+            holder.heading.setText(name.get(newPos));
+            holder.sub.setText(phone.get(newPos));
             holder.invite.setVisibility(View.VISIBLE);
             return;
         }
         User user = exists.get(position);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onUserClicked(holder.getAdapterPosition(),v);
+            }
+        });
         holder.heading.setText(user.getUsername());
         holder.sub.setText(user.getPhone());
         Picasso.get().load(user.getAvatar()).into(holder.avatar);
@@ -62,6 +74,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         TextView heading;
         TextView sub;
         TextView invite;
+        View itemView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -69,6 +82,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             this.heading = itemView.findViewById(R.id.headingTextView);
             this.sub = itemView.findViewById(R.id.subTextView);
             this.invite = itemView.findViewById(R.id.inviteTextView);
+            this.itemView = itemView;
         }
     }
 }

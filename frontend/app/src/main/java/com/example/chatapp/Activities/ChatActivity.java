@@ -95,9 +95,6 @@ public class ChatActivity extends AppCompatActivity {
         setupTabLayout(fragmentsList);
 
 
-
-
-
     }
 
 }

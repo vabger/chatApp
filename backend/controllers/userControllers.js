@@ -33,6 +33,11 @@ module.exports.getCurrentUser = catchAsync(async (req, res, next) => {
 
 
 module.exports.updateUsername = catchAsync(async (req, res, next) => {
+    const { username } = req.query;
+    if (!username) throw new APIError(400, "Bad Request");
+
+    const user = await User.findByIdAndUpdate(req.user.id, { username }, { new: true })
+    res.send({ ...user._doc })
 
 })
 

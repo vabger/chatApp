@@ -1,9 +1,13 @@
 package com.example.chatapp.Config;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.chatapp.MyApplication;
 import com.example.chatapp.Session;
 
 import java.io.IOException;
@@ -26,12 +30,16 @@ public class RetrofitClient {
 
     public static Retrofit getInstance() {
         if (retrofit == null) {
+
+            SharedPreferences sharedPreferences = MyApplication.getContext().getSharedPreferences("token",MODE_PRIVATE);
+
+            //Add access token to each request
             OkHttpClient client = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
                 @NonNull
                 @Override
                 public Response intercept(@NonNull Chain chain) throws IOException {
                     Request newRequest  = chain.request().newBuilder()
-                            .addHeader("Authorization", "Bearer " + Session.getInstance().getToken().getAccessToken())
+                            .addHeader("Authorization", "Bearer " + sharedPreferences.getString("accessToken",null))
                             .build();
                     return chain.proceed(newRequest);
                 }

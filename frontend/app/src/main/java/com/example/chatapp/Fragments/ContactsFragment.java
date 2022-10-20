@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -33,11 +34,13 @@ import android.widget.Toast;
 
 import com.example.chatapp.API.API;
 import com.example.chatapp.API.Auth.Phone;
+import com.example.chatapp.API.Chat.Chat;
 import com.example.chatapp.API.User.PhoneNumbers;
 import com.example.chatapp.API.User.User;
 import com.example.chatapp.API.User.UserApi;
 import com.example.chatapp.API.User.Users;
 import com.example.chatapp.Activities.ChatActivity;
+import com.example.chatapp.Activities.ChatRoomActivity;
 import com.example.chatapp.Adapters.UserAdapter;
 import com.example.chatapp.R;
 import com.example.chatapp.utils.FailedRequestHandler;
@@ -61,6 +64,7 @@ public class ContactsFragment extends Fragment {
 
     ToastError toastError;
     UserApi userApi;
+    List<User> users;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,6 +91,7 @@ public class ContactsFragment extends Fragment {
                     new FailedRequestHandler(getActivity(), response.code(), response.errorBody());
                     return;
                 }
+                users = response.body().getUsers();
                 Map<String, User> phoneToUser = new HashMap<>();
                 ArrayList<User> users = response.body().getUsers();
                 for(User u:users){
@@ -100,6 +105,28 @@ public class ContactsFragment extends Fragment {
                 toastError.showMessage("Unable to get users list! Try again later");
             }
         });
+    }
+
+    public void accessChat(User user){
+        Log.i("user",user.toString());
+        Call<Chat> call = API.getChatApi().accessChat(user.getId());
+        call.enqueue(new Callback<Chat>() {
+            @Override
+            public void onResponse(Call<Chat> call, Response<Chat> response) {
+                if(response.isSuccessful()){
+                    Log.i("chat",response.body().toString());
+                    Intent intent = new Intent(getContext(),ChatRoomActivity.class);
+                    intent.putExtra("chat",response.body());
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Chat> call, Throwable t) {
+                Toast.makeText(getContext(), "Something went wrong!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void setupContactsUI(View view,Map<String,User>phoneToUser,Map<String,String>phoneToLocalName){
@@ -120,7 +147,13 @@ public class ContactsFragment extends Fragment {
         Log.i("phone",phone.toString());
 
         RecyclerView recyclerView = view.findViewById(R.id.contactsRecyclerView);
-        recyclerView.setAdapter(new UserAdapter(exists,phone,name));
+        recyclerView.setAdapter(new UserAdapter(exists, phone, name, new UserAdapter.OnUserClickListener() {
+            @Override
+            public void onUserClicked(int position, View view) {
+                Log.i("pos",Integer.toString(position));
+                accessChat(users.get(position));
+            }
+        }));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 

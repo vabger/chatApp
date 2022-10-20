@@ -12,12 +12,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.chatapp.AES;
 import com.example.chatapp.API.API;
 import com.example.chatapp.API.Auth.AuthApi;
 import com.example.chatapp.API.Auth.OtpHash;
 import com.example.chatapp.API.Auth.OtpVerificationBody;
 import com.example.chatapp.API.Auth.Phone;
 import com.example.chatapp.API.Auth.Token;
+import com.example.chatapp.API.User.User;
 import com.example.chatapp.Fragments.EnterMobileFragment;
 import com.example.chatapp.Fragments.VerifyOtpFragment;
 import com.example.chatapp.R;
@@ -29,6 +31,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.Objects;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,7 +108,7 @@ public class LoginActivity extends AppCompatActivity implements EnterMobileFragm
             return;
         }
 
-        Call<Token> call = authApi.verifyOtp(new OtpVerificationBody(otpHash.getHash(),formattedNumber,otp));
+        Call<Token> call = authApi.verifyOtp(new OtpVerificationBody(otpHash.getHash(),formattedNumber,otp,new AES().getPublicKey()));
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<Token> call, @NonNull Response<Token> response) {
@@ -116,7 +119,7 @@ public class LoginActivity extends AppCompatActivity implements EnterMobileFragm
                 assert response.body() != null;
                 session.setToken(response.body());
 
-                Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 LoginActivity.this.finish();
                 startActivity(intent);
             }

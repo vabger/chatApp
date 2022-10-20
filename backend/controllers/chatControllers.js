@@ -7,7 +7,7 @@ const APIError = require('../utils/APIError');
 const catchAsync = require('../utils/catchAsync')
 
 module.exports.accessChat = catchAsync(async (req, res, next) => {
-    const { userId } = req.body;
+    const { userId } = req.query
     const { id } = req.user;
     if (!userId) throw new APIError(400, "User id required!")
 
@@ -25,20 +25,26 @@ module.exports.accessChat = catchAsync(async (req, res, next) => {
     })
 
     if (isChat.length > 0) {
-        res.send({ chat: isChat[0] })
+        res.send({ ...isChat[0]._doc })
     }
     else {
+
+        const user = await User.findById(userId);
+        if (!user) throw new APIError(400, "User does not exist");
+        console.log(user)
+
         const chatData = {
-            chatName: 'sender',
+            chatName: "sender",
             isGroupChat: false,
-            users: [id, userId]
+            users: [id, userId],
+            chatImage: user.avatar
         }
 
         const createdChat = await Chat.create(chatData)
 
         const fullChat = await Chat.findOne({ _id: createdChat._id }).populate('users')
 
-        res.send({ chat: fullChat })
+        res.send({ ...(fullChat._doc) })
 
     }
 
@@ -47,16 +53,12 @@ module.exports.accessChat = catchAsync(async (req, res, next) => {
 });
 
 module.exports.fetchChats = catchAsync(async (req, res, next) => {
+    console.log(req.user)
     let chats = await Chat.find({
         users: { $elemMatch: { $eq: req.user.id } }
-    }).populate('users').populate('groupAdmin').populate('latestMessage').sort({ updatedAt: -1 })
+    }).populate('users').populate('groupAdmin').sort({ updatedAt: -1 })
 
     if (!chats) throw new APIError(400, "Chats not found!")
-
-    chats = await User.populate(chats, {
-        path: 'latestMessage.sender',
-        select: 'username avatar phone'
-    })
 
     res.send({ chats })
 });
